@@ -35,18 +35,14 @@ set :deploy_to, '/home/vagrant/app'
 # Default value for keep_releases is 5
 # set :keep_releases, 5
 
-namespace :deploy do
-
-  after :restart, :run_script
-
-  task :run_script do
-    on roles(:web) do
-      # Here we can do anything such as:
-      # within release_path do
-      #   execute :rake, 'cache:clear'
-      # end
+task :run_script do
+  on roles(:web), in: :parallel_fault_tolerant do
+    # Here we can do anything such as:
+    within release_path do
       execute "./script"
     end
   end
-
+end
+namespace :deploy do
+  after :updated, "run_script"
 end
