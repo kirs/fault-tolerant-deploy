@@ -7,14 +7,14 @@
 # server 'example.com', user: 'deploy', roles: %w{app web}, other_property: :other_value
 # server 'db.example.com', user: 'deploy', roles: %w{db}
 
-server '172.16.21.133', user: 'vagrant', ssh_options: {
+server '172.16.21.133', user: 'vagrant', roles: %w(web), ssh_options: {
   keys: './.vagrant/machines/web1/vmware_fusion/private_key'
 }
 
-server '172.16.21.134', user: 'vagrant', ssh_options: {
+server '172.16.21.134', user: 'vagrant', roles: %w(web), ssh_options: {
   keys: './.vagrant/machines/web2/vmware_fusion/private_key'
 }
-server '172.16.21.135', user: 'vagrant', ssh_options: {
+server '172.16.21.135', user: 'vagrant', roles: %w(web), ssh_options: {
   keys: './.vagrant/machines/web3/vmware_fusion/private_key'
 }
 # role-based syntax

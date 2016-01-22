@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ hostname = "web03" ]; then
+if [ `hostname` = "web3" ]; then
   echo "Failing"
   exit 1
 else

@@ -37,7 +37,9 @@ set :deploy_to, '/home/vagrant/app'
 
 namespace :deploy do
 
-  after :restart do
+  after :restart, :run_script
+
+  task :run_script do
     on roles(:web) do
       # Here we can do anything such as:
       # within release_path do
