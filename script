@@ -1,1 +1,7 @@
-echo "hello world"
+#!/bin/bash
+if [ hostname = "web03" ]; then
+  echo "Failing"
+  exit 1
+else
+  echo "hello world"
+fi

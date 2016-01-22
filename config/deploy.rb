@@ -1,8 +1,8 @@
 # config valid only for current version of Capistrano
 lock '3.4.0'
 
-set :application, 'my_app_name'
-set :repo_url, 'git@github.com:kirs/dumb.git'
+set :application, "app"
+set :repo_url, "git@github.com:kirs/capistrano-fault-tolerant.git"
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
@@ -37,12 +37,13 @@ set :deploy_to, '/home/vagrant/app'
 
 namespace :deploy do
 
-  after :restart, :clear_cache do
-    on roles(:web), in: :groups, limit: 3, wait: 10 do
+  after :restart do
+    on roles(:web) do
       # Here we can do anything such as:
       # within release_path do
       #   execute :rake, 'cache:clear'
       # end
+      execute "./script"
     end
   end
 
