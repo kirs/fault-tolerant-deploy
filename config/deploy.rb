@@ -1,6 +1,6 @@
 # config valid only for current version of Capistrano
 lock '3.4.0'
-
+set(:connection_timeout, 5)
 set :application, "app"
 set :repo_url, "git@github.com:kirs/capistrano-fault-tolerant.git"
 
@@ -36,7 +36,8 @@ set :deploy_to, '/home/vagrant/app'
 # set :keep_releases, 5
 
 task :run_script do
-  on roles(:web), in: :parallel_fault_tolerant do
+  # on roles(:web), in: :parallel_fault_tolerant do
+  on roles(:web) do
     # Here we can do anything such as:
     within release_path do
       execute "./script"
