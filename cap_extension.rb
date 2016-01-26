@@ -3,41 +3,27 @@ require 'sshkit'
 require 'mutex_m'
 
 class ShopifyRunner < SSHKit::Runner::Abstract
-  class FailedHosts
+  module FailedHosts
     extend Mutex_m
-    class << self
-      def push(host)
-        instance.push(host)
-      end
-      def include?(host)
-        instance.include?(host)
-      end
+    extend self
 
-      def instance
-        mu_synchronize do
-          @instance ||= new
-        end
-      end
+    def push(host)
+      instance << host
+      on_new_host(host)
     end
 
-    def initialize
-      @list = Set.new
-      @m = Mutex.new
+    def include?(host)
+      instance.include?(host)
+    end
+
+    def instance
+      mu_synchronize do
+        @instance ||= Set.new
+      end
     end
 
     def on_new_host(host)
       # drop it
-    end
-
-    def push(hostname)
-      @m.synchronize do
-        @list << hostname
-        on_new_host(hostname)
-      end
-    end
-
-    def include?(hostname)
-      @list.include?(hostname)
     end
   end
 
