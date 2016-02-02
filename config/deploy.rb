@@ -3,6 +3,7 @@ lock '3.4.0'
 set(:connection_timeout, 5)
 set :application, "app"
 set :repo_url, "git@github.com:kirs/capistrano-fault-tolerant.git"
+set :failure_tolerance, 0.3
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
