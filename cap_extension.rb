@@ -10,10 +10,7 @@ class FailedHosts
   attr_reader :hosts
 
   def push(host)
-    max_servers_to_fail = 2
-    if @hosts.size > max_servers_to_fail
-      # PROBLEM: Capistrano::Configuration.servers is private here
-      # which we need to calculate failure_tolerance 0.05
+    if @hosts.size >= max_servers_to_fail
       return false
     end
 
@@ -26,8 +23,15 @@ class FailedHosts
     @hosts.include?(host)
   end
 
+  private
+
   def on_new_host(host)
     # drop it
+  end
+
+  def max_servers_to_fail
+    total_servers = Capistrano::Configuration.env.send(:servers).to_a.size
+    (fetch(:failure_tolerance, 0) * total_servers).ceil
   end
 end
 
@@ -44,7 +48,9 @@ class ShopifyRunner < SSHKit::Runner::Abstract
 
           # returns false if there are too many failed servers
           # raise back
-          options[:failed_hosts].push(h)
+          unless options[:failed_hosts].push(h)
+            raise
+          end
         end
       end
     end
@@ -57,9 +63,8 @@ SSHKit.config.default_runner = ShopifyRunner
 module MyDSL
   def on(hosts, options={}, &block)
     # exclude failed hosts
-    @failed_hosts = FailedHosts.new
+    @failed_hosts ||= FailedHosts.new
     hosts = hosts - @failed_hosts.hosts.to_a
-
     options[:failed_hosts] = @failed_hosts
     super(hosts, options, &block)
   end
