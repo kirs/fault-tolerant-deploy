@@ -2,32 +2,28 @@ require 'thread'
 require 'sshkit'
 require 'mutex_m'
 
-module FailedHosts
-  extend Mutex_m
-  extend self
+class FailedHosts
+  def initialize
+    @hosts = Set.new
+  end
+
+  attr_reader :hosts
 
   def push(host)
-    return false
     max_servers_to_fail = 2
-    if hosts.size > max_servers_to_fail
+    if @hosts.size > max_servers_to_fail
       # PROBLEM: Capistrano::Configuration.servers is private here
       # which we need to calculate failure_tolerance 0.05
       return false
     end
 
-    hosts << host
+    @hosts << host
     on_new_host(host)
     true
   end
 
   def include?(host)
-    instance.include?(host)
-  end
-
-  def hosts
-    mu_synchronize do
-      @hosts ||= Set.new
-    end
+    @hosts.include?(host)
   end
 
   def on_new_host(host)
@@ -48,9 +44,7 @@ class ShopifyRunner < SSHKit::Runner::Abstract
 
           # returns false if there are too many failed servers
           # raise back
-          unless FailedHosts.push(h)
-            raise
-          end
+          options[:failed_hosts].push(h)
         end
       end
     end
@@ -63,7 +57,10 @@ SSHKit.config.default_runner = ShopifyRunner
 module MyDSL
   def on(hosts, options={}, &block)
     # exclude failed hosts
-    hosts = hosts - FailedHosts.hosts.to_a
+    @failed_hosts = FailedHosts.new
+    hosts = hosts - @failed_hosts.hosts.to_a
+
+    options[:failed_hosts] = @failed_hosts
     super(hosts, options, &block)
   end
 end
